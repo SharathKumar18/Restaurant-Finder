@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Restaurant
@@ -17,7 +18,7 @@ import com.codecraft.restaurant.ui.base.BaseFragment
 import com.codecraft.restaurant.utils.AppConstants
 import kotlinx.android.synthetic.main.fragment_home.*
 
-class HomeFragment : BaseFragment() {
+class HomeFragment : BaseFragment(),SwipeRefreshLayout.OnRefreshListener{
 
     private var restaurantAdapter: RestaurantRecyclerAdapter? = null
     private var layoutManager: LinearLayoutManager? = null
@@ -28,8 +29,7 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun initViews(view: View) {
-        getViewModel()?.getUiLiveData()?.observe(this,
-            Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
+        swipeRefresh.setOnRefreshListener(this);
         observeLiveData()
         setUpRecyclerView(null)
         getViewModel()?.fetchRestaurantData()
@@ -45,9 +45,16 @@ class HomeFragment : BaseFragment() {
                     totalItems=t?.getResults()?.size
                 }
             })
+        getViewModel()?.getUiLiveData()?.observe(this,
+            Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
     }
 
     override fun resumeScreen() {
+    }
+
+    override fun onRefresh() {
+        swipeRefresh.isRefreshing = false
+        getViewModel()?.fetchRestaurantData()
     }
 
     override fun handleBusCallback(event: Any) {
@@ -55,7 +62,7 @@ class HomeFragment : BaseFragment() {
             when (event.eventTag) {
                 RxEvent.EVENT_LOCATION_UPDATED -> {
                     if(event.data is Location){
-
+                        getViewModel()?.fetchRestaurantData()
                     }
                 }
             }

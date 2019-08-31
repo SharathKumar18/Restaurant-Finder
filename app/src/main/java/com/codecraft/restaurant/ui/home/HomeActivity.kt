@@ -18,10 +18,10 @@ import com.codecraft.restaurant.ui.splash.SplashFragment
 import com.codecraft.restaurant.utils.AppConstants
 import com.codecraft.restaurant.utils.FragmentNavigator
 import com.codecraft.restaurant.utils.LocationHelperUtil
+import com.codecraft.restaurant.utils.PreferenceHelper
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
 class HomeActivity : BaseActivity() {
-
 
     override fun getLayoutId(): Int {
         return R.layout.activity_home
@@ -54,6 +54,11 @@ class HomeActivity : BaseActivity() {
             LOCATION_REFRESH_TIME,
             LOCATION_REFRESH_DISTANCE.toFloat(), locationListener
         )
+        locationManager.requestLocationUpdates(
+            LocationManager.NETWORK_PROVIDER,
+            LOCATION_REFRESH_TIME,
+            LOCATION_REFRESH_DISTANCE.toFloat(), locationListener
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -71,9 +76,19 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        locationManager.removeUpdates(locationListener)
+        super.onDestroy()
+    }
+
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             Log.i("location received", "" + location.latitude + location.longitude)
+            PreferenceHelper.getInstance()
+                .editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
+            PreferenceHelper.getInstance()
+                .editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
             val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
             rxBus?.send(event)
         }
@@ -128,8 +143,7 @@ class HomeActivity : BaseActivity() {
     }
 
     companion object {
-        private const val LOCATION_REFRESH_TIME: Long = 5000
+        private const val LOCATION_REFRESH_TIME: Long = 1000
         private const val LOCATION_REFRESH_DISTANCE: Long = 1000
-        private val LOCATION_SETTINGS_REQUEST = 1
     }
 }

@@ -44,13 +44,17 @@
 
             <TextView
                 android:id="@+id/restaurantLocation"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_10dp"
                 android:layout_marginTop="@dimen/margin_3dp"
                 android:contentDescription="@null"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:gravity="left"
+                android:layout_marginEnd="@dimen/margin_10dp"
+                app:layout_constraintEnd_toStartOf="@+id/restaurantDistance"
                 android:includeFontPadding="false"
-                app:layout_constraintLeft_toRightOf="@+id/restaurantThumb"
+                card_view:layout_constraintStart_toStartOf="@+id/restaurantName"
                 app:layout_constraintTop_toBottomOf="@+id/restaurantName" />
 
             <TextView
@@ -59,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_20dp"
                 android:contentDescription="@null"
+                android:text="@string/text_distance_meter"
                 android:includeFontPadding="false"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

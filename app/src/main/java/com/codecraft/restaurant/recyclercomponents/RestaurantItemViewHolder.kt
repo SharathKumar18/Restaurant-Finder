@@ -13,9 +13,9 @@ class RestaurantItemViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
 
     fun bindData(result: Result) {
 
-        var thumbnail=view.findViewById<ImageView>(R.id.restaurantThumb)
-        var name=view.findViewById<TextView>(R.id.restaurantName)
-        var location=view.findViewById<TextView>(R.id.restaurantLocation)
+        val thumbnail=view.findViewById<ImageView>(R.id.restaurantThumb)
+        val name=view.findViewById<TextView>(R.id.restaurantName)
+        val location=view.findViewById<TextView>(R.id.restaurantLocation)
         var distance=view.findViewById<TextView>(R.id.restaurantDistance)
 
         Glide.with(thumbnail.context)
@@ -25,7 +25,7 @@ class RestaurantItemViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
                 .into(thumbnail)
         name.text=result.getName()
         location.text= result.getVicinity()
-        distance
+
     }
 
     companion object {

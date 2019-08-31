@@ -1,20 +1,19 @@
 package com.codecraft.restaurant.network
 
 import android.os.AsyncTask
-import com.codecraft.restaurant.data.response.Restaurant
-import com.google.gson.Gson
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class ResponseFetchAsyntask {
+object ResponseFetchAsyncTask {
 
-    lateinit var resultCallback:OnResultListener
+    private lateinit var resultCallback: OnResultListener
+    private var networkFetchAsyncTask: ResponseFetchAsyncTask?=null
 
-    inner class ResponsefetchAsyntask : AsyncTask<String, Void, String>() {
+    class ResponseFetchAsyncTask : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg strings: String): String? {
-            var response:String?=null
+            var response: String? = null
             val request = strings[0]
             try {
                 val conn: HttpURLConnection = createHttpConnection(request)
@@ -22,7 +21,7 @@ class ResponseFetchAsyntask {
 
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     val input = conn.inputStream
-                    response= ResponseParser.parseResponseFromServer(input)
+                    response = ResponseParser.parseResponseFromServer(input)
                 }
             } catch (e: Exception) {
                 resultCallback.onResultFailed(e.printStackTrace().toString())
@@ -48,7 +47,6 @@ class ResponseFetchAsyntask {
             return conn
         }
 
-
         override fun onPostExecute(s: String) {
             super.onPostExecute(s)
             resultCallback.onResultSuccess(s)
@@ -57,26 +55,17 @@ class ResponseFetchAsyntask {
     }
 
     fun fetchResultFromServer(url: String) {
-        ResponsefetchAsyntask().execute(url)
+        networkFetchAsyncTask?.cancel(true)
+        networkFetchAsyncTask = ResponseFetchAsyncTask()
+        networkFetchAsyncTask?.execute(url)
     }
 
     fun setResultListener(listener: OnResultListener) {
         resultCallback = listener
     }
 
-
     interface OnResultListener {
         fun onResultSuccess(restaurant: String)
-        fun onResultFailed(value:String)
-    }
-
-    companion object {
-        private var responseFetch: ResponseFetchAsyntask? = null
-        fun getInstance(): ResponseFetchAsyntask? {
-            if (responseFetch == null) {
-                responseFetch = ResponseFetchAsyntask()
-            }
-            return responseFetch
-        }
+        fun onResultFailed(value: String)
     }
 }

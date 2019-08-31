@@ -5,4 +5,5 @@
     <string name="ok">OK</string>
     <string name="title_location_permission">Location</string>
     <string name="text_location_permission">This is required to fetch nearby restaurants for you</string>
+    <string name="text_distance_meter">0m</string>
 </resources>
