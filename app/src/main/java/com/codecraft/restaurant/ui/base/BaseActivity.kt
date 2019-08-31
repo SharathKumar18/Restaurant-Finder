@@ -23,7 +23,7 @@ abstract class BaseActivity : AppCompatActivity() {
     protected abstract fun initViews()
     protected abstract fun handleBusCallback(event: Any)
 
-    private var rxBus: MainBus? = null
+    var rxBus: MainBus? = null
     private var showNetworkChanged: Boolean = false
     private var receiver: BroadcastReceiver? = null
     private var disposable: DisposableObserver<Any>? = null

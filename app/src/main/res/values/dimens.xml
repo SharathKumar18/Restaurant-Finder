@@ -2,4 +2,10 @@
 <resources>
     <dimen name="splash_title_text">24sp</dimen>
     <dimen name="margin_left_toolbar_title">40dp</dimen>
+    <dimen name="item_height">100dp</dimen>
+    <dimen name="margin_3dp">3dp</dimen>
+    <dimen name="width_item_thumb">50dp</dimen>
+    <dimen name="height_item_thumb">50dp</dimen>
+    <dimen name="margin_10dp">10dp</dimen>
+    <dimen name="margin_20dp">20dp</dimen>
 </resources>
