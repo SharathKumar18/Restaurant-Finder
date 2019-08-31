@@ -13,6 +13,7 @@ import com.codecraft.restaurant.utils.ApiConstants.KEY
 import com.codecraft.restaurant.utils.ApiConstants.LOCATION
 import com.codecraft.restaurant.utils.ApiConstants.TYPE
 import com.codecraft.restaurant.utils.ApiConstants.NEAR_BY_RESTAURANT
+import com.codecraft.restaurant.utils.ApiConstants.NEXT_PAGE_TOKEN
 import com.codecraft.restaurant.utils.ApiConstants.RANK_BY
 import com.codecraft.restaurant.utils.ApiConstants.TYPE_RESTAURANT
 import com.codecraft.restaurant.utils.AppConstants.KEY_LATITUDE
@@ -24,6 +25,7 @@ import com.google.gson.Gson
 class HomeViewModel(application: Application) : BaseViewModel(application = application) {
 
     private val liveData = MutableLiveData<Restaurant>()
+    private var nextPageToken: String? = null
 
     fun getRestaurantLiveData(): MutableLiveData<Restaurant> {
         return liveData
@@ -44,7 +46,11 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
             .append(LOCATION)
             .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LATITUDE))
             .append(",")
-            .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LONGITUDE)).toString()
+            .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LONGITUDE))
+            .append("&")
+            .append(NEXT_PAGE_TOKEN)
+            .append(nextPageToken).toString()
+        
         //51.52864165,-0.10179430
     }
 
@@ -54,9 +60,10 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
         ResponseFetchAsyncTask.setResultListener(object :
             ResponseFetchAsyncTask.OnResultListener {
             override fun onResultSuccess(restaurant: String) {
-                Log.i("restaurantData","Url:"+getApiUrl() +"\nResponse"+restaurant)
+                Log.i("restaurantData", "Url:" + getApiUrl() + "\nResponse" + restaurant)
                 val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
                 if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
+                    nextPageToken = data.getNextPageToken()
                     liveData.value = data
                 }
                 hideProgress()

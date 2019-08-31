@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.data.model.UiHelper
@@ -15,21 +16,23 @@ import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.recyclercomponents.RestaurantRecyclerAdapter
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.ui.base.BaseFragment
+import com.codecraft.restaurant.utils.ApiConstants
 import com.codecraft.restaurant.utils.AppConstants
 import kotlinx.android.synthetic.main.fragment_home.*
 
-class HomeFragment : BaseFragment(),SwipeRefreshLayout.OnRefreshListener{
+class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private var restaurantAdapter: RestaurantRecyclerAdapter? = null
-    private var layoutManager: LinearLayoutManager? = null
-    private var totalItems:Int? = 0
+    private lateinit var layoutManager: LinearLayoutManager
+    private var totalItems: Int? = 0
+    private var loading = false
 
     override fun getFragmentLayoutId(): Int {
         return R.layout.fragment_home
     }
 
     override fun initViews(view: View) {
-        swipeRefresh.setOnRefreshListener(this);
+        swipeRefresh.setOnRefreshListener(this)
         observeLiveData()
         setUpRecyclerView(null)
         getViewModel()?.fetchRestaurantData()
@@ -37,12 +40,13 @@ class HomeFragment : BaseFragment(),SwipeRefreshLayout.OnRefreshListener{
 
     private fun observeLiveData() {
         getViewModel()?.getRestaurantLiveData()?.observe(this,
-            Observer<Restaurant> { t ->
-                if(restaurantAdapter==null){
-                    setUpRecyclerView(t?.getResults())
-                }else{
-                    restaurantAdapter?.updateItems(t?.getResults(),totalItems)
-                    totalItems=t?.getResults()?.size
+            Observer<Restaurant> { listData ->
+                loading = false
+                if (restaurantAdapter == null) {
+                    setUpRecyclerView(listData?.getResults())
+                } else {
+                    restaurantAdapter?.updateItems(listData?.getResults(), totalItems)
+                    totalItems = listData?.getResults()?.size
                 }
             })
         getViewModel()?.getUiLiveData()?.observe(this,
@@ -61,7 +65,7 @@ class HomeFragment : BaseFragment(),SwipeRefreshLayout.OnRefreshListener{
         if (event is RxEvent<*>) {
             when (event.eventTag) {
                 RxEvent.EVENT_LOCATION_UPDATED -> {
-                    if(event.data is Location){
+                    if (event.data is Location) {
                         getViewModel()?.fetchRestaurantData()
                     }
                 }
@@ -69,41 +73,36 @@ class HomeFragment : BaseFragment(),SwipeRefreshLayout.OnRefreshListener{
         }
     }
 
-    /*private val recyclerViewOnScrollListener = object : RecyclerView.OnScrollListener() {
-        fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+    private val recyclerViewOnScrollListener = object : RecyclerView.OnScrollListener() {
+
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
         }
 
-        fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            if (layoutManager != null) {
-                if (dy > 0) {
-                    val visibleItemCount = layoutManager!!.getChildCount()
-                    val totalItemCount = layoutManager!!.getItemCount()
-                    val previousVisibleItems = layoutManager!!.findFirstVisibleItemPosition()
-                    if (!loading) {
-                        if (visibleItemCount + previousVisibleItems >= totalItemCount && mPreviousTotal >= ApiConstants.DEFAULT_COUNT) {
-                            loading = true
-                            fetchRestaurantList(
-                                getViewModel()!!.getCityName(),
-                                getViewModel()!!.getItemCount()
-                            )
-                        }
-                    }
+
+            val visibleItemCount = layoutManager.childCount
+            val totalItemCount = layoutManager.itemCount
+            val previousVisibleItems = layoutManager.findFirstVisibleItemPosition()
+            if (!loading) {
+                if ((visibleItemCount + previousVisibleItems) >= totalItemCount) {
+                    loading = true
+                    getViewModel()?.fetchRestaurantData()
                 }
             }
         }
-    }*/
-
+    }
 
     private fun setUpRecyclerView(results: List<Result>?) {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        restaurantRecyclerView.layoutManager= layoutManager
+        restaurantRecyclerView.layoutManager = layoutManager
         restaurantAdapter = RestaurantRecyclerAdapter(results)
         restaurantRecyclerView.adapter = restaurantAdapter
         restaurantRecyclerView.addItemDecoration(
             DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         )
+        restaurantRecyclerView.addOnScrollListener(recyclerViewOnScrollListener)
     }
 
 
