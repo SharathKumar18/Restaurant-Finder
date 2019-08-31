@@ -11,5 +11,5 @@ object ApiConstants{
     const val RANK_BY = "rankby="
     const val DISTANCE = "distance"
     const val LOCATION="location="
-    const val NEXT_PAGE_TOKEN="next_page_token="
+    const val NEXT_PAGE_TOKEN="pagetoken="
 }

@@ -3,7 +3,9 @@ package com.codecraft.restaurant.ui.home
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Restaurant
+import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.network.ResponseFetchAsyncTask
 import com.codecraft.restaurant.ui.base.BaseViewModel
 import com.codecraft.restaurant.utils.ApiConstants.API_KEY
@@ -16,6 +18,7 @@ import com.codecraft.restaurant.utils.ApiConstants.NEAR_BY_RESTAURANT
 import com.codecraft.restaurant.utils.ApiConstants.NEXT_PAGE_TOKEN
 import com.codecraft.restaurant.utils.ApiConstants.RANK_BY
 import com.codecraft.restaurant.utils.ApiConstants.TYPE_RESTAURANT
+import com.codecraft.restaurant.utils.AppConstants
 import com.codecraft.restaurant.utils.AppConstants.KEY_LATITUDE
 import com.codecraft.restaurant.utils.AppConstants.KEY_LONGITUDE
 import com.codecraft.restaurant.utils.AppConstants.RESULT_STATUS
@@ -24,15 +27,16 @@ import com.google.gson.Gson
 
 class HomeViewModel(application: Application) : BaseViewModel(application = application) {
 
-    private val liveData = MutableLiveData<Restaurant>()
+    private val liveData = MutableLiveData<List<Result>>()
     private var nextPageToken: String? = null
 
-    fun getRestaurantLiveData(): MutableLiveData<Restaurant> {
+    fun getRestaurantLiveData(): MutableLiveData<List<Result>> {
         return liveData
     }
 
     private fun getApiUrl(): String {
-        return StringBuilder().append(BASE_URL)
+        val url = StringBuilder()
+        url.append(BASE_URL)
             .append(NEAR_BY_RESTAURANT)
             .append(TYPE)
             .append(TYPE_RESTAURANT)
@@ -47,11 +51,13 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
             .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LATITUDE))
             .append(",")
             .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LONGITUDE))
-            .append("&")
-            .append(NEXT_PAGE_TOKEN)
-            .append(nextPageToken).toString()
-        
+        if (nextPageToken != null) {
+            url.append("&")
+                .append(NEXT_PAGE_TOKEN)
+                .append(nextPageToken).toString()
+        }
         //51.52864165,-0.10179430
+        return url.toString()
     }
 
     fun fetchRestaurantData() {
@@ -60,11 +66,18 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
         ResponseFetchAsyncTask.setResultListener(object :
             ResponseFetchAsyncTask.OnResultListener {
             override fun onResultSuccess(restaurant: String) {
+                sendUiData(AppConstants.UIConstants.DATA_LOADED)
                 Log.i("restaurantData", "Url:" + getApiUrl() + "\nResponse" + restaurant)
                 val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
                 if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
                     nextPageToken = data.getNextPageToken()
-                    liveData.value = data
+                    if (liveData.value != null) {
+                        val previousResult = liveData.value as ArrayList<Result>
+                        data.getResults()?.let { previousResult.addAll(it) }
+                        liveData.value = previousResult
+                    } else {
+                        liveData.value = data.getResults()
+                    }
                 }
                 hideProgress()
             }
