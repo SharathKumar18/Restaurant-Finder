@@ -74,6 +74,8 @@ class HomeActivity : BaseActivity() {
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             Log.i("location received", "" + location.latitude + location.longitude)
+            val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
+            rxBus?.send(event)
         }
 
         override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {
@@ -93,7 +95,7 @@ class HomeActivity : BaseActivity() {
         val rxEvent = event as RxEvent<*>
         when (rxEvent.eventTag) {
             EVENT_LOAD_HOME -> {
-
+                loadHomeFragment()
             }
         }
         Log.i("handled", "" + rxEvent.eventTag)
@@ -105,6 +107,15 @@ class HomeActivity : BaseActivity() {
             this, supportFragmentManager,
             getContainer(), SplashFragment.newInstance(), null, false,
             SplashFragment::class.java.simpleName
+        )
+    }
+
+    private fun loadHomeFragment() {
+        setIsToolbarRequired(true)
+        FragmentNavigator.replaceFragment(
+            this, supportFragmentManager,
+            getContainer(), HomeFragment.newInstance(), null, false,
+            HomeFragment::class.java.simpleName
         )
     }
 

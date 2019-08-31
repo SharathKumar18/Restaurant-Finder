@@ -11,21 +11,21 @@ import com.codecraft.restaurant.utils.AppConstants
 
 class SplashFragment : BaseFragment() {
 
-    private var mHandler: Handler? = null
-    private var mRunnable: Runnable? = null
+    private var handler: Handler? = null
+    private var runnable: Runnable? = null
 
     private fun sendNextScreenEvent() {
         val event = RxEvent(RxEvent.EVENT_LOAD_HOME, null)
         rxBus!!.send(event)
     }
 
-    override fun handleBusCallback(event: Any): Int {
-        return 0
+    override fun handleBusCallback(event: Any) {
+
     }
 
     override fun onDestroy() {
-        mHandler!!.removeCallbacks(mRunnable)
-        mHandler = null
+        handler!!.removeCallbacks(runnable)
+        handler = null
         super.onDestroy()
     }
 
@@ -34,9 +34,9 @@ class SplashFragment : BaseFragment() {
     }
 
     override fun initViews(view: View) {
-        mHandler = Handler()
-        mRunnable = Runnable { this.sendNextScreenEvent() }
-        mHandler!!.postDelayed(mRunnable, AppConstants.SPLASH_DELAY)
+        handler = Handler()
+        runnable = Runnable { this.sendNextScreenEvent() }
+        handler!!.postDelayed(runnable, AppConstants.SPLASH_DELAY)
     }
 
     override fun resumeScreen() {

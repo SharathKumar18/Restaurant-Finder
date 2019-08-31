@@ -15,8 +15,8 @@ abstract class BaseFragment : Fragment() {
     protected abstract fun getFragmentLayoutId(): Int
     protected abstract fun initViews(view: View)
     abstract fun resumeScreen()
-    protected abstract fun handleBusCallback(event: Any): Int
-    public var rxBus: MainBus? = null
+    protected abstract fun handleBusCallback(event: Any)
+    var rxBus: MainBus? = null
     private var disposable: DisposableObserver<Any>? = null
 
     override fun onCreateView(
@@ -27,8 +27,12 @@ abstract class BaseFragment : Fragment() {
         val view = inflater.inflate(getFragmentLayoutId(), container, false)
         rxBus = RxHelper.getInstance()
         registerForBusCallback()
-        initViews(view)
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews(view)
     }
 
     private fun registerForBusCallback() {
