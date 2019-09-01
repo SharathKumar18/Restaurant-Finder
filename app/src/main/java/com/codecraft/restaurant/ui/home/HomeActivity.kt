@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.ui.MapsActivity
 
+
 class HomeActivity : BaseActivity() {
 
     override fun getLayoutId(): Int {
@@ -149,7 +150,7 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun loadDetailFragment(result: Result) {
-        setIsToolbarRequired(true)
+        setIsToolbarRequired(false)
         FragmentNavigator.addFragment(
             this, supportFragmentManager,
             getContainer(), DetailFragment.newInstance(result), null, true,
@@ -161,16 +162,14 @@ class HomeActivity : BaseActivity() {
         var result = ArrayList<Result>()
         val currentFragment = supportFragmentManager.findFragmentById(getContainer())
         if (currentFragment is HomeFragment) {
-            val mutableList: MutableLiveData<List<Result>>? =
+            val mutableList: MutableLiveData<ArrayList<Result>>? =
                 currentFragment.getFragmentData()?.getRestaurantLiveData()
             if (mutableList?.value != null &&  mutableList.value is ArrayList<Result>) {
                 result = mutableList.value as ArrayList<Result>
             }
         }
         val intent = Intent(this, MapsActivity::class.java)
-        val data = Bundle()
-        data.putParcelableArrayList("search.resultSet", result)
-        intent.putExtra("result.content", data)
+        intent.putParcelableArrayListExtra(AppConstants.MAP_LOCATIONS, result as ArrayList<out Parcelable>)
         startActivity(intent)
     }
 

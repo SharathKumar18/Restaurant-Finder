@@ -1,6 +1,7 @@
 package com.codecraft.restaurant.utils
 
 object AppConstants {
+    const val MAP_ZOOM: Float = 16f
     const val SPLASH_DELAY: Long = 3000
     const val GET_LOCATION = 1
     const val RESULT_STATUS = "OVER_QUERY_LIMIT"

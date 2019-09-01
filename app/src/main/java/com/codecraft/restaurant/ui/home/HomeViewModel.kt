@@ -27,10 +27,10 @@ import com.google.gson.Gson
 
 class HomeViewModel(application: Application) : BaseViewModel(application = application) {
 
-    private val liveData = MutableLiveData<List<Result>>()
+    private val liveData = MutableLiveData<ArrayList<Result>>()
     private var nextPageToken: String? = null
 
-    fun getRestaurantLiveData(): MutableLiveData<List<Result>> {
+    fun getRestaurantLiveData(): MutableLiveData<ArrayList<Result>> {
         return liveData
     }
 
@@ -76,7 +76,7 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                         data.getResults()?.let { previousResult.addAll(it) }
                         liveData.value = previousResult
                     } else {
-                        liveData.value = data.getResults()
+                        liveData.value = data.getResults() as ArrayList<Result>?
                     }
                 }
                 hideProgress()

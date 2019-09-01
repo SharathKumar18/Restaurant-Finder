@@ -1,41 +1,40 @@
 package com.codecraft.restaurant.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.codecraft.restaurant.R
+import com.codecraft.restaurant.data.response.Location
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.utils.AppConstants
-
+import com.codecraft.restaurant.utils.PreferenceHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private var mapFragment: SupportMapFragment? = null
+    private var mapLocationList = ArrayList<Result>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        val data = this.intent.getBundleExtra("result.content")
-        val result = data.getParcelableArrayList<Result>("search.resultset")
-        mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        mapLocationList = intent.getParcelableArrayListExtra(AppConstants.MAP_LOCATIONS)
+        Log.i("parcedList", "" + mapLocationList.size)
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment?.getMapAsync(this)
 
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -48,10 +47,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+        for (item in mapLocationList) {
+            val markerLocation = item.getGeometry()?.location
+            if (markerLocation != null) {
+                item.getName()?.let { createMarker(markerLocation, it, item.getVicinity()!!) }
+            }
+        }
+        val sydney = LatLng(
+            PreferenceHelper.getInstance().getPrefFloat(AppConstants.KEY_LATITUDE).toDouble(),
+            PreferenceHelper.getInstance().getPrefFloat(AppConstants.KEY_LONGITUDE).toDouble()
+        )
+        val marker = mMap.addMarker(MarkerOptions().position(sydney).title("Current Location")
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+        marker.showInfoWindow()
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                sydney,
+                AppConstants.MAP_ZOOM
+            )
+        )
         mapFragment?.onResume()
+    }
+
+    private fun createMarker(
+        location: Location,
+        title: String,
+        snippet: String
+    ): Marker? {
+        return if (location.getLat() != null && location.getLng() != null) {
+            return mMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(location.getLat()!!, location.getLng()!!))
+                    .anchor(0.5f, 0.5f)
+                    .title(title)
+                    .snippet(snippet)
+            )
+        } else {
+            null
+        }
     }
 }

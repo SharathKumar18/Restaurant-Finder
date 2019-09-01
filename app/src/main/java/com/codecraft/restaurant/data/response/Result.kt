@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Result() : Parcelable {
+class Result() :Parcelable {
     @SerializedName("geometry")
     @Expose
     private var geometry: Geometry? = null
@@ -58,23 +58,7 @@ class Result() : Parcelable {
         userRatingsTotal = parcel.readValue(Int::class.java.classLoader) as? Int
         vicinity = parcel.readString()
         priceLevel = parcel.readValue(Int::class.java.classLoader) as? Int
-    }
-
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeString(icon)
-        dest?.writeString(id)
-        dest?.writeString(name)
-        dest?.writeString(placeId)
-        dest?.writeValue(rating)
-        dest?.writeString(reference)
-        dest?.writeString(scope)
-        dest?.writeValue(userRatingsTotal)
-        dest?.writeString(vicinity)
-        dest?.writeString(priceLevel.toString())
-    }
-
-    override fun describeContents(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        geometry = parcel.readParcelable(javaClass.classLoader)
     }
 
     fun getPhotos(): List<PhotoReference>? {
@@ -181,6 +165,25 @@ class Result() : Parcelable {
         this.priceLevel = priceLevel
     }
 
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(icon)
+        parcel.writeString(id)
+        parcel.writeString(name)
+        parcel.writeString(placeId)
+        parcel.writeValue(rating)
+        parcel.writeString(reference)
+        parcel.writeString(scope)
+        parcel.writeStringList(types)
+        parcel.writeValue(userRatingsTotal)
+        parcel.writeString(vicinity)
+        parcel.writeValue(priceLevel)
+        parcel.writeParcelable(geometry, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
     companion object CREATOR : Parcelable.Creator<Result> {
         override fun createFromParcel(parcel: Parcel): Result {
             return Result(parcel)
@@ -190,4 +193,5 @@ class Result() : Parcelable {
             return arrayOfNulls(size)
         }
     }
+
 }
