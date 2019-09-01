@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.data.model.UiHelper
-import com.codecraft.restaurant.data.response.Restaurant
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.recyclercomponents.RestaurantRecyclerAdapter
 import com.codecraft.restaurant.rxbus.RxEvent
@@ -109,6 +108,10 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
             AppConstants.UIConstants.HIDE_PROGRESS -> progressCircular.visibility = View.GONE
             AppConstants.UIConstants.DATA_LOADED -> loading = false
         }
+    }
+
+    fun getFragmentData(): HomeViewModel? {
+        return getViewModel()
     }
 
     private fun getViewModel(): HomeViewModel? {

@@ -71,7 +71,7 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                 val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
                 if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
                     nextPageToken = data.getNextPageToken()
-                    if (liveData.value != null) {
+                    if (liveData.value != null && liveData.value is ArrayList<Result>) {
                         val previousResult = liveData.value as ArrayList<Result>
                         data.getResults()?.let { previousResult.addAll(it) }
                         liveData.value = previousResult

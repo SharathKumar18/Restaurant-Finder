@@ -1,10 +1,11 @@
 package com.codecraft.restaurant.data.response
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Result {
-
+class Result() : Parcelable {
     @SerializedName("geometry")
     @Expose
     private var geometry: Geometry? = null
@@ -41,6 +42,48 @@ class Result {
     @SerializedName("price_level")
     @Expose
     private var priceLevel: Int? = null
+    @SerializedName("photos")
+    @Expose
+    private var photos: List<PhotoReference>? = null
+
+    constructor(parcel: Parcel) : this() {
+        icon = parcel.readString()
+        id = parcel.readString()
+        name = parcel.readString()
+        placeId = parcel.readString()
+        rating = parcel.readValue(Double::class.java.classLoader) as? Double
+        reference = parcel.readString()
+        scope = parcel.readString()
+        types = parcel.createStringArrayList()
+        userRatingsTotal = parcel.readValue(Int::class.java.classLoader) as? Int
+        vicinity = parcel.readString()
+        priceLevel = parcel.readValue(Int::class.java.classLoader) as? Int
+    }
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeString(icon)
+        dest?.writeString(id)
+        dest?.writeString(name)
+        dest?.writeString(placeId)
+        dest?.writeValue(rating)
+        dest?.writeString(reference)
+        dest?.writeString(scope)
+        dest?.writeValue(userRatingsTotal)
+        dest?.writeString(vicinity)
+        dest?.writeString(priceLevel.toString())
+    }
+
+    override fun describeContents(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun getPhotos(): List<PhotoReference>? {
+        return photos
+    }
+
+    fun setPhotos(photos: List<PhotoReference>?) {
+        this.photos = photos
+    }
 
     fun getGeometry(): Geometry? {
         return geometry
@@ -136,5 +179,15 @@ class Result {
 
     fun setPriceLevel(priceLevel: Int?) {
         this.priceLevel = priceLevel
+    }
+
+    companion object CREATOR : Parcelable.Creator<Result> {
+        override fun createFromParcel(parcel: Parcel): Result {
+            return Result(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Result?> {
+            return arrayOfNulls(size)
+        }
     }
 }

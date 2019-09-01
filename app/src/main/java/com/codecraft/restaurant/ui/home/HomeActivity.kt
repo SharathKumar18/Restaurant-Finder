@@ -1,18 +1,24 @@
 package com.codecraft.restaurant.ui.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProviders
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.rxbus.RxEvent.Companion.EVENT_LOAD_HOME
+import com.codecraft.restaurant.rxbus.RxEvent.Companion.EVENT_RESTAURANT_ITEM_CLICKED
+import com.codecraft.restaurant.ui.detail.DetailFragment
 import com.codecraft.restaurant.ui.base.BaseActivity
 import com.codecraft.restaurant.ui.splash.SplashFragment
 import com.codecraft.restaurant.utils.AppConstants
@@ -20,6 +26,8 @@ import com.codecraft.restaurant.utils.FragmentNavigator
 import com.codecraft.restaurant.utils.LocationHelperUtil
 import com.codecraft.restaurant.utils.PreferenceHelper
 import kotlinx.android.synthetic.main.layout_toolbar.*
+import com.codecraft.restaurant.data.response.Result
+import com.codecraft.restaurant.ui.MapsActivity
 
 class HomeActivity : BaseActivity() {
 
@@ -36,6 +44,9 @@ class HomeActivity : BaseActivity() {
         val isPermissionGranted = LocationHelperUtil.checkLocationPermission(this)
         if (isPermissionGranted) {
             findUserLocation()
+        }
+        mapIcon.setOnClickListener {
+            loadMapFragment()
         }
     }
 
@@ -112,6 +123,9 @@ class HomeActivity : BaseActivity() {
             EVENT_LOAD_HOME -> {
                 loadHomeFragment()
             }
+            EVENT_RESTAURANT_ITEM_CLICKED -> {
+                loadDetailFragment(event.data as Result)
+            }
         }
         Log.i("handled", "" + rxEvent.eventTag)
     }
@@ -132,6 +146,32 @@ class HomeActivity : BaseActivity() {
             getContainer(), HomeFragment.newInstance(), null, false,
             HomeFragment::class.java.simpleName
         )
+    }
+
+    private fun loadDetailFragment(result: Result) {
+        setIsToolbarRequired(true)
+        FragmentNavigator.addFragment(
+            this, supportFragmentManager,
+            getContainer(), DetailFragment.newInstance(result), null, true,
+            DetailFragment::class.java.simpleName
+        )
+    }
+
+    private fun loadMapFragment() {
+        var result = ArrayList<Result>()
+        val currentFragment = supportFragmentManager.findFragmentById(getContainer())
+        if (currentFragment is HomeFragment) {
+            val mutableList: MutableLiveData<List<Result>>? =
+                currentFragment.getFragmentData()?.getRestaurantLiveData()
+            if (mutableList?.value != null &&  mutableList.value is ArrayList<Result>) {
+                result = mutableList.value as ArrayList<Result>
+            }
+        }
+        val intent = Intent(this, MapsActivity::class.java)
+        val data = Bundle()
+        data.putParcelableArrayList("search.resultSet", result)
+        intent.putExtra("result.content", data)
+        startActivity(intent)
     }
 
     private fun setIsToolbarRequired(value: Boolean) {

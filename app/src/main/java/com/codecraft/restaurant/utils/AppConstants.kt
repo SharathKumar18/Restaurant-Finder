@@ -7,6 +7,7 @@ object AppConstants {
     const val KEY_LONGITUDE = "longitude"
     const val KEY_LATITUDE = "latitude"
     const val PREF_NAME = "RestaurantAppPreference"
+    const val MAP_LOCATIONS = "mapLocations"
 
     interface UIConstants {
         companion object {
