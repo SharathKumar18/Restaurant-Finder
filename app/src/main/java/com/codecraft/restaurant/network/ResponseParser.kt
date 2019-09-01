@@ -2,6 +2,13 @@ package com.codecraft.restaurant.network
 
 import java.io.InputStream
 import java.io.InputStreamReader
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import android.R.attr.bitmap
+
+
+
+
 
 object ResponseParser {
 
@@ -18,4 +25,9 @@ object ResponseParser {
         }
         return response.toString()
     }
+
+    fun parseImageFromServer(input: InputStream): Bitmap{
+        return BitmapFactory.decodeStream(input)
+    }
+
 }

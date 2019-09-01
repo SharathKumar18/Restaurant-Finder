@@ -1,15 +1,19 @@
 package com.codecraft.restaurant.recyclercomponents
 
+import android.graphics.Bitmap
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.codecraft.restaurant.R
+import com.codecraft.restaurant.data.response.Restaurant
 import com.codecraft.restaurant.data.response.Result
+import com.codecraft.restaurant.network.ImageFetchAsyntask
+import com.codecraft.restaurant.network.ResponseFetchAsyncTask
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.ui.base.BaseViewHolder
-import com.codecraft.restaurant.ui.base.BaseViewModel
+import com.codecraft.restaurant.utils.AppConstants
+import com.google.gson.Gson
 
 class RestaurantItemViewHolder(var view: View) : BaseViewHolder(view) {
 
@@ -23,11 +27,9 @@ class RestaurantItemViewHolder(var view: View) : BaseViewHolder(view) {
         val location = view.findViewById<TextView>(R.id.restaurantLocation)
         var distance = view.findViewById<TextView>(R.id.restaurantDistance)
 
-        Glide.with(thumbnail.context)
-            .load(result.getIcon())
-            .placeholder(R.drawable.ic_action_restuarant)
-            .error(R.drawable.ic_action_restuarant)
-            .into(thumbnail)
+        result.getIcon()?.let {
+            ImageFetchAsyntask.fetchImageFromServer(it,thumbnail)
+        }
         name.text = result.getName()
         location.text = result.getVicinity()
 

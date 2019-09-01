@@ -62,29 +62,30 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
 
     fun fetchRestaurantData() {
         showProgress()
-        ResponseFetchAsyncTask.fetchResultFromServer(getApiUrl())
-        ResponseFetchAsyncTask.setResultListener(object :
+        ResponseFetchAsyncTask.fetchResultFromServer(getApiUrl(), object :
             ResponseFetchAsyncTask.OnResultListener {
-            override fun onResultSuccess(restaurant: String) {
+            override fun <T> onResultSuccess(restaurant: T) {
                 sendUiData(AppConstants.UIConstants.DATA_LOADED)
                 Log.i("restaurantData", "Url:" + getApiUrl() + "\nResponse" + restaurant)
-                val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
-                if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
-                    nextPageToken = data.getNextPageToken()
-                    if (liveData.value != null && liveData.value is ArrayList<Result>) {
-                        val previousResult = liveData.value as ArrayList<Result>
-                        data.getResults()?.let { previousResult.addAll(it) }
-                        liveData.value = previousResult
-                    } else {
-                        liveData.value = data.getResults() as ArrayList<Result>?
+                if(restaurant is String) {
+                    val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
+                    if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
+                        nextPageToken = data.getNextPageToken()
+                        if (liveData.value != null && liveData.value is ArrayList<Result>) {
+                            val previousResult = liveData.value as ArrayList<Result>
+                            data.getResults()?.let { previousResult.addAll(it) }
+                            liveData.value = previousResult
+                        } else {
+                            liveData.value = data.getResults() as ArrayList<Result>?
+                        }
                     }
                 }
                 hideProgress()
             }
 
             override fun onResultFailed(value: String) {
+                hideProgress()
             }
-
         })
     }
 

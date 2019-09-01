@@ -27,6 +27,7 @@ import com.codecraft.restaurant.utils.LocationHelperUtil
 import com.codecraft.restaurant.utils.PreferenceHelper
 import kotlinx.android.synthetic.main.layout_toolbar.*
 import com.codecraft.restaurant.data.response.Result
+import com.codecraft.restaurant.rxbus.RxEvent.Companion.SHOW_TOOLBAR_HOME
 import com.codecraft.restaurant.ui.MapsActivity
 
 
@@ -127,8 +128,10 @@ class HomeActivity : BaseActivity() {
             EVENT_RESTAURANT_ITEM_CLICKED -> {
                 loadDetailFragment(event.data as Result)
             }
+            SHOW_TOOLBAR_HOME->{
+                setIsToolbarRequired(true)
+            }
         }
-        Log.i("handled", "" + rxEvent.eventTag)
     }
 
     private fun loadSplashFragment() {

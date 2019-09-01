@@ -2,6 +2,7 @@ package com.codecraft.restaurant.ui.detail
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.lifecycle.Observer
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Result
+import com.codecraft.restaurant.network.ImageFetchAsyntask
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.ui.base.BaseFragment
 import com.codecraft.restaurant.utils.AppConstants
@@ -32,11 +34,17 @@ class DetailFragment : BaseFragment() {
     }
 
     override fun initViews(view: View) {
-        result?.let { getViewModel()?.fetchPhoto(it) }
-        getViewModel()?.getPhotoData()?.observe(this,
-            Observer<Bitmap> {
-                detailThumb.setImageBitmap(it)
-            })
+        detailThumb.post {
+            result?.let {
+                Log.i("detailData", "" + getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height))
+                getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height)?.let {
+                    ImageFetchAsyntask.fetchImageFromServer(
+                        it, detailThumb
+                    )
+                }
+            }
+        }
+
         getViewModel()?.getUiLiveData()?.observe(this,
             Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
         mScaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
@@ -86,7 +94,7 @@ class DetailFragment : BaseFragment() {
 
     companion object {
         private const val RESTAURANT_DATA = "restaurantData"
-        private const val MAX_SCALE =  10.0f
+        private const val MAX_SCALE = 10.0f
         private const val MIN_SCALE = 1f
 
         fun newInstance(result: Result): DetailFragment {

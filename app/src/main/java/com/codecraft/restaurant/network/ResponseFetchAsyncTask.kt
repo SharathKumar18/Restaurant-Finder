@@ -1,30 +1,33 @@
 package com.codecraft.restaurant.network
 
 import android.os.AsyncTask
+import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 object ResponseFetchAsyncTask {
 
-    private lateinit var resultCallback: OnResultListener
-    private var networkFetchAsyncTask: ResponseFetchAsyncTask?=null
+    private var networkFetchAsyncTask: ResponseFetchAsyncTask? = null
 
-    class ResponseFetchAsyncTask : AsyncTask<String, Void, String>() {
+    class ResponseFetchAsyncTask(resultCallback: OnResultListener) :
+        AsyncTask<String, Void, String?>() {
+
+        private var weakReference: WeakReference<OnResultListener> = WeakReference(resultCallback)
 
         override fun doInBackground(vararg strings: String): String? {
             var response: String? = null
             val request = strings[0]
             try {
                 val conn: HttpURLConnection = createHttpConnection(request)
-                val responseCode: Int = conn.responseCode
 
+                val responseCode: Int = conn.responseCode
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     val input = conn.inputStream
                     response = ResponseParser.parseResponseFromServer(input)
                 }
             } catch (e: Exception) {
-                resultCallback.onResultFailed(e.printStackTrace().toString())
+                weakReference.get()?.onResultFailed(e.printStackTrace().toString())
             }
             return response
         }
@@ -33,7 +36,6 @@ object ResponseFetchAsyncTask {
             request: String
         ): HttpURLConnection {
             val url = URL(request)
-
             val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
             conn.readTimeout = 15000
             conn.connectTimeout = 15000
@@ -47,25 +49,21 @@ object ResponseFetchAsyncTask {
             return conn
         }
 
-        override fun onPostExecute(s: String) {
-            super.onPostExecute(s)
-            resultCallback.onResultSuccess(s)
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            weakReference.get()?.onResultSuccess(result)
             cancel(true)
         }
     }
 
-    fun fetchResultFromServer(url: String) {
+    fun fetchResultFromServer(url: String, listener: OnResultListener) {
         networkFetchAsyncTask?.cancel(true)
-        networkFetchAsyncTask = ResponseFetchAsyncTask()
+        networkFetchAsyncTask = ResponseFetchAsyncTask(listener)
         networkFetchAsyncTask?.execute(url)
     }
 
-    fun setResultListener(listener: OnResultListener) {
-        resultCallback = listener
-    }
-
     interface OnResultListener {
-        fun onResultSuccess(restaurant: String)
+        fun <T> onResultSuccess(restaurant: T)
         fun onResultFailed(value: String)
     }
 }

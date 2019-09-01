@@ -6,7 +6,7 @@ object ApiConstants{
     const val NEAR_BY_RESTAURANT = "/place/nearbysearch/json?"
     const val PHOTO_REFERENCE = "/place/photo?"
     const val MAX_WIDTH = "maxwidth="
-    const val WIDTH_PHOTO = "300"
+    const val MAX_HEIGHT = "maxheight="
     const val PHOTO_REFERENCE_ID = "photoreference="
     const val API_KEY = "AIzaSyDlIW0lNweq5jN9wO2F5AVV8FVNXeRqCwk"
     const val TYPE = "type="

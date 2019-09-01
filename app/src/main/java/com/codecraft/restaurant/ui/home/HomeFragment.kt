@@ -52,6 +52,8 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     override fun resumeScreen() {
+        val event = RxEvent(RxEvent.SHOW_TOOLBAR_HOME, null)
+        rxBus?.send(event)
     }
 
     override fun onRefresh() {
