@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.codecraft.restaurant.R
+import com.codecraft.restaurant.application.RestaurantApp
 import com.codecraft.restaurant.data.response.Location
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.utils.AppConstants
@@ -16,10 +17,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import javax.inject.Inject
 
 
 open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    @Inject
+    lateinit var preferenceHelper :PreferenceHelper
     private lateinit var mMap: GoogleMap
     private var mapFragment: SupportMapFragment? = null
     private var mapLocationList = ArrayList<Result>()
@@ -27,12 +31,10 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-
+        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
         mapLocationList = intent.getParcelableArrayListExtra(AppConstants.MAP_LOCATIONS)
-        Log.i("parcedList", "" + mapLocationList.size)
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment?.getMapAsync(this)
-
     }
 
     /**
@@ -53,17 +55,17 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 item.getName()?.let { createMarker(markerLocation, it, item.getVicinity()!!) }
             }
         }
-        val sydney = LatLng(
-            PreferenceHelper.getInstance().getPrefFloat(AppConstants.KEY_LATITUDE).toDouble(),
-            PreferenceHelper.getInstance().getPrefFloat(AppConstants.KEY_LONGITUDE).toDouble()
+        val currentLocation = LatLng(
+            preferenceHelper.getPrefFloat(AppConstants.KEY_LATITUDE).toDouble(),
+            preferenceHelper.getPrefFloat(AppConstants.KEY_LONGITUDE).toDouble()
         )
-        val marker = mMap.addMarker(MarkerOptions().position(sydney).title("Current Location")
+        val marker = mMap.addMarker(MarkerOptions().position(currentLocation).title(getString(R.string.current_location))
             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
         marker.showInfoWindow()
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation))
         mMap.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
-                sydney,
+                currentLocation,
                 AppConstants.MAP_ZOOM
             )
         )

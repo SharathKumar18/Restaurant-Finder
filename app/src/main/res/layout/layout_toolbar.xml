@@ -9,13 +9,13 @@
     app:layout_scrollFlags="scroll|enterAlways">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/parent_layout"
+        android:id="@+id/parentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary">
 
         <TextView
-            android:id="@+id/toolbar_title"
+            android:id="@+id/toolbaTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_left_toolbar_title"
@@ -36,7 +36,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
             android:src="@drawable/ic_directions"
-            android:layout_marginEnd="@dimen/margin_20dp"
+            android:layout_marginEnd="@dimen/margin_30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.codecraft.restaurant.application.RestaurantApp
 import com.codecraft.restaurant.rxbus.MainBus
 import com.codecraft.restaurant.rxbus.RxHelper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.observers.DisposableObserver
+import javax.inject.Inject
 
 abstract class BaseFragment : Fragment() {
 
@@ -16,7 +18,8 @@ abstract class BaseFragment : Fragment() {
     protected abstract fun initViews(view: View)
     abstract fun resumeScreen()
     protected abstract fun handleBusCallback(event: Any)
-    var rxBus: MainBus? = null
+    @Inject
+    lateinit var rxBus: RxHelper
     private var disposable: DisposableObserver<Any>? = null
 
     override fun onCreateView(
@@ -25,7 +28,7 @@ abstract class BaseFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(getFragmentLayoutId(), container, false)
-        rxBus = RxHelper.getInstance()
+        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
         registerForBusCallback()
         return view
     }

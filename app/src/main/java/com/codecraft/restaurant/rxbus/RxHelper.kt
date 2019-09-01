@@ -4,6 +4,12 @@ import io.reactivex.subjects.PublishSubject
 
 class RxHelper : MainBus {
 
+    private var mBus: PublishSubject<Any>? = null
+
+    init {
+        mBus = PublishSubject.create()
+    }
+
     override fun send(event: Any) {
         mBus?.onNext(event)
     }
@@ -16,7 +22,7 @@ class RxHelper : MainBus {
         return mBus?.hasObservers()
     }
 
-    companion object {
+    /*companion object {
         private var mBus: PublishSubject<Any>? = null
         private var mBusClass: RxHelper? = null
         fun getInstance(): RxHelper? {
@@ -26,5 +32,5 @@ class RxHelper : MainBus {
             }
             return mBusClass
         }
-    }
+    }*/
 }

@@ -34,6 +34,7 @@ class DetailFragment : BaseFragment() {
     }
 
     override fun initViews(view: View) {
+        detailTitle.text=result?.getName()
         detailThumb.post {
             result?.let {
                 Log.i("detailData", "" + getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height))

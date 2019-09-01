@@ -3,25 +3,35 @@ package com.codecraft.restaurant.ui.base
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.codecraft.restaurant.application.RestaurantApp
 import com.codecraft.restaurant.data.model.UiHelper
-import com.codecraft.restaurant.rxbus.MainBus
+import com.codecraft.restaurant.rxbus.RxHelper
 import com.codecraft.restaurant.utils.AppConstants
+import com.codecraft.restaurant.utils.PreferenceHelper
 import io.reactivex.observers.DisposableObserver
+import javax.inject.Inject
 
 abstract class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val TAG = "BaseViewModel"
-    protected var rxBus: MainBus? = null
+    @Inject
+    lateinit var rxBus: RxHelper
+    @Inject
+    lateinit var preferenceHelper : PreferenceHelper
     private var disposable: DisposableObserver<Any>? = null
     protected abstract fun handleBusCallback(event: Any)
     private val uiLiveData = MutableLiveData<UiHelper>()
 
     init {
+        initDagger()
         registerForBusCallback()
     }
 
     fun getUiLiveData(): MutableLiveData<UiHelper> {
         return uiLiveData
+    }
+
+    private fun initDagger() {
+        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
     }
 
     fun showProgress() {

@@ -2,6 +2,7 @@ package com.codecraft.restaurant.ui.home
 
 import android.app.Application
 import android.util.Log
+import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Restaurant
@@ -29,9 +30,14 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
 
     private val liveData = MutableLiveData<ArrayList<Result>>()
     private var nextPageToken: String? = null
+    private val errorValue: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getRestaurantLiveData(): MutableLiveData<ArrayList<Result>> {
         return liveData
+    }
+
+    fun getErrorLiveData(): MutableLiveData<Boolean> {
+        return errorValue
     }
 
     private fun getApiUrl(): String {
@@ -48,15 +54,14 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
             .append(DISTANCE)
             .append("&")
             .append(LOCATION)
-            .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LATITUDE))
+            .append(preferenceHelper.getPrefFloat(KEY_LATITUDE))
             .append(",")
-            .append(PreferenceHelper.getInstance().getPrefFloat(KEY_LONGITUDE))
+            .append(preferenceHelper.getPrefFloat(KEY_LONGITUDE))
         if (nextPageToken != null) {
             url.append("&")
                 .append(NEXT_PAGE_TOKEN)
                 .append(nextPageToken).toString()
         }
-        //51.52864165,-0.10179430
         return url.toString()
     }
 
@@ -70,6 +75,7 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                 if(restaurant is String) {
                     val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
                     if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
+                        errorValue.value=false
                         nextPageToken = data.getNextPageToken()
                         if (liveData.value != null && liveData.value is ArrayList<Result>) {
                             val previousResult = liveData.value as ArrayList<Result>
@@ -84,6 +90,7 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
             }
 
             override fun onResultFailed(value: String) {
+                errorValue.value=true
                 hideProgress()
             }
         })

@@ -3,6 +3,8 @@ package com.codecraft.restaurant.ui.home
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -49,11 +51,20 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
             })
         getViewModel()?.getUiLiveData()?.observe(this,
             Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
+
+        getViewModel()?.getErrorLiveData()?.observe(this, Observer {
+            if(it){
+                errorText.visibility=VISIBLE
+            }else{
+                errorText.visibility= GONE
+
+            }
+        })
     }
 
     override fun resumeScreen() {
         val event = RxEvent(RxEvent.SHOW_TOOLBAR_HOME, null)
-        rxBus?.send(event)
+        rxBus.send(event)
     }
 
     override fun onRefresh() {

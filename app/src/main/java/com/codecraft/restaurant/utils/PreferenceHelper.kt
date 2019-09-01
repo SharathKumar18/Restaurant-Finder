@@ -6,6 +6,13 @@ import com.codecraft.restaurant.application.RestaurantApp
 
 class PreferenceHelper {
 
+    private var preference: SharedPreferences? = null
+
+    init {
+        preference = RestaurantApp.getContext()?.getSharedPreferences(AppConstants.PREF_NAME,
+            Context.MODE_PRIVATE)
+    }
+
     fun editPrefString(name: String, value: String) {
         preference!!.edit().putString(name, value).apply()
     }
@@ -22,7 +29,7 @@ class PreferenceHelper {
         return preference!!.getString(name, null)
     }
 
-    companion object{
+    /*companion object{
         private var helperClass: PreferenceHelper? = null
         private var preference: SharedPreferences? = null
         fun getInstance(): PreferenceHelper {
@@ -33,5 +40,5 @@ class PreferenceHelper {
             }
             return helperClass as PreferenceHelper
         }
-    }
+    }*/
 }

@@ -29,6 +29,8 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.rxbus.RxEvent.Companion.SHOW_TOOLBAR_HOME
 import com.codecraft.restaurant.ui.MapsActivity
+import kotlinx.android.synthetic.main.layout_toolbar.view.*
+import javax.inject.Inject
 
 
 class HomeActivity : BaseActivity() {
@@ -98,12 +100,10 @@ class HomeActivity : BaseActivity() {
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             Log.i("location received", "" + location.latitude + location.longitude)
-            PreferenceHelper.getInstance()
-                .editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
-            PreferenceHelper.getInstance()
-                .editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
+            preferenceHelper.editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
+            preferenceHelper.editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
             val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
-            rxBus?.send(event)
+            rxBus.send(event)
         }
 
         override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {
@@ -129,7 +129,8 @@ class HomeActivity : BaseActivity() {
                 loadDetailFragment(event.data as Result)
             }
             SHOW_TOOLBAR_HOME->{
-                setIsToolbarRequired(true)
+                toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_home)
+                toolbar.parentLayout.mapIcon.visibility= VISIBLE
             }
         }
     }
@@ -145,6 +146,7 @@ class HomeActivity : BaseActivity() {
 
     private fun loadHomeFragment() {
         setIsToolbarRequired(true)
+        toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_home)
         FragmentNavigator.replaceFragment(
             this, supportFragmentManager,
             getContainer(), HomeFragment.newInstance(), null, false,
@@ -153,7 +155,8 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun loadDetailFragment(result: Result) {
-        setIsToolbarRequired(false)
+        toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_detail)
+        toolbar.parentLayout.mapIcon.visibility= GONE
         FragmentNavigator.addFragment(
             this, supportFragmentManager,
             getContainer(), DetailFragment.newInstance(result), null, true,
