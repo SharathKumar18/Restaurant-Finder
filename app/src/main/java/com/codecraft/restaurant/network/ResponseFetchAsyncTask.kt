@@ -1,6 +1,7 @@
 package com.codecraft.restaurant.network
 
 import android.os.AsyncTask
+import com.codecraft.restaurant.utils.Logger
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
@@ -18,9 +19,9 @@ object ResponseFetchAsyncTask {
         override fun doInBackground(vararg strings: String): String? {
             var response: String? = null
             val request = strings[0]
+            Logger.i("RestaurantData", "Url:$request")
             try {
                 val conn: HttpURLConnection = createHttpConnection(request)
-
                 val responseCode: Int = conn.responseCode
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     val input = conn.inputStream
@@ -51,6 +52,7 @@ object ResponseFetchAsyncTask {
 
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
+            Logger.i("RestaurantData", "\nResponse$result")
             weakReference.get()?.onResultSuccess(result)
             cancel(true)
         }

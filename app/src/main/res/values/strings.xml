@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RestaurantDemo</string>
+    <string name="app_name">RestaurantFinder</string>
     <string name="disconnected">Network Disconnected</string>
     <string name="connected">Network connected</string>
     <string name="ok">OK</string>

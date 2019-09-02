@@ -54,8 +54,10 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
 
         getViewModel()?.getErrorLiveData()?.observe(this, Observer {
             if (it) {
-                errorText.visibility = VISIBLE
-                errorText.text = getString(R.string.error_text)
+                if (totalItems == 0) {
+                    errorText.visibility = VISIBLE
+                    errorText.text = getString(R.string.error_text)
+                }
             } else {
                 errorText.visibility = GONE
                 errorText.text = ""
@@ -64,6 +66,12 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     override fun resumeScreen() {
+        totalItems.let {
+            if (it != null && it > 0) {
+                errorText.visibility = GONE
+                errorText.text = ""
+            }
+        }
         val event = RxEvent(RxEvent.SHOW_TOOLBAR_HOME, null)
         rxBus.send(event)
     }

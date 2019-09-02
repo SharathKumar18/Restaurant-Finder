@@ -1,10 +1,7 @@
 package com.codecraft.restaurant.ui.home
 
 import android.app.Application
-import android.util.Log
-import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Restaurant
 import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.network.ResponseFetchAsyncTask
@@ -14,16 +11,16 @@ import com.codecraft.restaurant.utils.ApiConstants.BASE_URL
 import com.codecraft.restaurant.utils.ApiConstants.DISTANCE
 import com.codecraft.restaurant.utils.ApiConstants.KEY
 import com.codecraft.restaurant.utils.ApiConstants.LOCATION
-import com.codecraft.restaurant.utils.ApiConstants.TYPE
 import com.codecraft.restaurant.utils.ApiConstants.NEAR_BY_RESTAURANT
 import com.codecraft.restaurant.utils.ApiConstants.NEXT_PAGE_TOKEN
 import com.codecraft.restaurant.utils.ApiConstants.RANK_BY
+import com.codecraft.restaurant.utils.ApiConstants.TYPE
 import com.codecraft.restaurant.utils.ApiConstants.TYPE_RESTAURANT
 import com.codecraft.restaurant.utils.AppConstants
 import com.codecraft.restaurant.utils.AppConstants.KEY_LATITUDE
 import com.codecraft.restaurant.utils.AppConstants.KEY_LONGITUDE
 import com.codecraft.restaurant.utils.AppConstants.RESULT_STATUS
-import com.codecraft.restaurant.utils.PreferenceHelper
+import com.codecraft.restaurant.utils.Logger
 import com.google.gson.Gson
 
 class HomeViewModel(application: Application) : BaseViewModel(application = application) {
@@ -67,28 +64,25 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
 
     fun fetchRestaurantData() {
         showProgress()
+        errorValue.value = false
         ResponseFetchAsyncTask.fetchResultFromServer(getApiUrl(), object :
             ResponseFetchAsyncTask.OnResultListener {
             override fun <T> onResultSuccess(restaurant: T) {
                 sendUiData(AppConstants.UIConstants.DATA_LOADED)
-                Log.i("restaurantData", "Url:" + getApiUrl() + "\nResponse" + restaurant)
-                if(restaurant is String) {
+                if (restaurant is String) {
                     val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
                     if (data is Restaurant && !data.status.equals(RESULT_STATUS)) {
-                        errorValue.value=false
                         nextPageToken = data.nextPageToken
                         createMutableListData(data)
-                    }else{
-                        if(liveData.value == null){
-                            errorValue.value = true
-                        }
+                    } else {
+                        errorValue.value = true
                     }
                 }
                 hideProgress()
             }
 
             override fun onResultFailed(value: String) {
-                errorValue.value=true
+                errorValue.value = true
                 hideProgress()
             }
         })

@@ -1,5 +1,6 @@
 package com.codecraft.restaurant.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +15,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import javax.inject.Inject
-import android.graphics.Color
+import android.net.Uri
+import com.codecraft.restaurant.utils.ApiConstants.DESTINATION_ADDRESS
+import com.codecraft.restaurant.utils.ApiConstants.MAPS_BASE_URL
 import com.google.android.gms.maps.model.*
 
 
@@ -38,7 +41,7 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     override fun onMapReady(googleMap: GoogleMap) {
-        var line: Polyline?=null
+        var line: Polyline? = null
         mMap = googleMap
         showAllNearByLocationsOnMap()
         showCurrentLocationOnMap()
@@ -48,23 +51,31 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             for (item in mapLocationList) {
                 if (item.name.equals(marker?.title)) {
                     marker.showInfoWindow()
-                    Log.i("Mapclicked", "" + marker.title)
                     val markerLocation = item.geometry?.location
-                    line = mMap.addPolyline(
-                        PolylineOptions()
-                            .add(
-                                LatLng(currentLocation.latitude, currentLocation.longitude),
-                                markerLocation?.lat?.let {
-                                    LatLng(it, markerLocation.lng!!)
-                                }
-                            )
-                            .width(5f)
-                            .color(Color.RED)
-                    )
+                    redirectToMap(markerLocation)
                 }
             }
             true
         }
+    }
+
+    private fun redirectToMap(markerLocation: Location?) {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(getMapAddress(markerLocation?.lat, markerLocation?.lng))
+        )
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        }
+    }
+
+    private fun getMapAddress(latitude: Double?, longitude: Double?): String {
+        return StringBuilder().append(MAPS_BASE_URL)
+            .append(DESTINATION_ADDRESS)
+            .append(latitude)
+            .append(",")
+            .append(longitude)
+            .toString()
     }
 
     private fun showCurrentLocationOnMap() {

@@ -8,29 +8,26 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProviders
 import com.codecraft.restaurant.R
+import com.codecraft.restaurant.data.response.Result
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.rxbus.RxEvent.Companion.EVENT_LOAD_HOME
 import com.codecraft.restaurant.rxbus.RxEvent.Companion.EVENT_RESTAURANT_ITEM_CLICKED
-import com.codecraft.restaurant.ui.detail.DetailFragment
+import com.codecraft.restaurant.rxbus.RxEvent.Companion.SHOW_TOOLBAR_HOME
+import com.codecraft.restaurant.ui.MapsActivity
 import com.codecraft.restaurant.ui.base.BaseActivity
+import com.codecraft.restaurant.ui.detail.DetailFragment
 import com.codecraft.restaurant.ui.splash.SplashFragment
 import com.codecraft.restaurant.utils.AppConstants
 import com.codecraft.restaurant.utils.FragmentNavigator
 import com.codecraft.restaurant.utils.LocationHelperUtil
-import com.codecraft.restaurant.utils.PreferenceHelper
+import com.codecraft.restaurant.utils.Logger
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import com.codecraft.restaurant.data.response.Result
-import com.codecraft.restaurant.rxbus.RxEvent.Companion.SHOW_TOOLBAR_HOME
-import com.codecraft.restaurant.ui.MapsActivity
 import kotlinx.android.synthetic.main.layout_toolbar.view.*
-import javax.inject.Inject
 
 
 class HomeActivity : BaseActivity() {
@@ -99,7 +96,7 @@ class HomeActivity : BaseActivity() {
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            Log.i("location received", "" + location.latitude + location.longitude)
+            Logger.i("RestaurantData", "" + location.latitude + location.longitude)
             preferenceHelper.editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
             preferenceHelper.editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
             val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
@@ -154,7 +151,7 @@ class HomeActivity : BaseActivity() {
         )
     }
 
-    fun loadDetailFragment(result: Result) {
+    private fun loadDetailFragment(result: Result) {
         toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_detail)
         toolbar.parentLayout.mapIcon.visibility = GONE
         FragmentNavigator.addFragment(

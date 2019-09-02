@@ -3,6 +3,8 @@ package com.codecraft.restaurant.utils
 object ApiConstants{
 
     const val BASE_URL = "https://maps.googleapis.com/maps/api"
+    const val MAPS_BASE_URL = "http://maps.google.com/maps?"
+    const val DESTINATION_ADDRESS = "daddr="
     const val NEAR_BY_RESTAURANT = "/place/nearbysearch/json?"
     const val PHOTO_REFERENCE = "/place/photo?"
     const val MAX_WIDTH = "maxwidth="

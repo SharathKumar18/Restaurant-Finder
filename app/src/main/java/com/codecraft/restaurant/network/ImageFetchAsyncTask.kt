@@ -5,6 +5,7 @@ import android.os.AsyncTask
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.codecraft.restaurant.R
+import com.codecraft.restaurant.utils.Logger
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
@@ -22,6 +23,7 @@ object ImageFetchAsyncTask {
 
         override fun doInBackground(vararg strings: String): Bitmap? {
             val request = strings[0]
+            Logger.i("RestaurantData", "Url:$request")
             try {
                 val conn: HttpURLConnection = createImageConnection(request)
                 val responseCode: Int = conn.responseCode
@@ -38,6 +40,7 @@ object ImageFetchAsyncTask {
         }
 
         override fun onPostExecute(result: Bitmap?) {
+            Logger.i("RestaurantData", "Response:$result")
             if (result != null) {
                 weakReference.get()?.setImageBitmap(result)
             } else {
