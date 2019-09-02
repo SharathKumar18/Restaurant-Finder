@@ -85,7 +85,7 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         if (event is RxEvent<*>) {
             when (event.eventTag) {
                 RxEvent.EVENT_LOCATION_UPDATED -> {
-                    if (event.data is Location) {
+                    if (event.data is Location && isResumed) {
                         getViewModel()?.fetchRestaurantData()
                     }
                 }
