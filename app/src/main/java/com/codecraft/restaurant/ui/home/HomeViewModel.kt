@@ -84,6 +84,8 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                         } else {
                             liveData.value = data.getResults() as ArrayList<Result>?
                         }
+                    }else{
+                        errorValue.value=true
                     }
                 }
                 hideProgress()

@@ -55,6 +55,7 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         getViewModel()?.getErrorLiveData()?.observe(this, Observer {
             if(it){
                 errorText.visibility=VISIBLE
+                errorText.text=getString(R.string.error_text)
             }else{
                 errorText.visibility= GONE
 

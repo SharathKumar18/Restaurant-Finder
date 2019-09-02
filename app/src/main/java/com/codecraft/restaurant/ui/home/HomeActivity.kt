@@ -128,9 +128,9 @@ class HomeActivity : BaseActivity() {
             EVENT_RESTAURANT_ITEM_CLICKED -> {
                 loadDetailFragment(event.data as Result)
             }
-            SHOW_TOOLBAR_HOME->{
-                toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_home)
-                toolbar.parentLayout.mapIcon.visibility= VISIBLE
+            SHOW_TOOLBAR_HOME -> {
+                toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_home)
+                toolbar.parentLayout.mapIcon.visibility = VISIBLE
             }
         }
     }
@@ -146,7 +146,7 @@ class HomeActivity : BaseActivity() {
 
     private fun loadHomeFragment() {
         setIsToolbarRequired(true)
-        toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_home)
+        toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_home)
         FragmentNavigator.replaceFragment(
             this, supportFragmentManager,
             getContainer(), HomeFragment.newInstance(), null, false,
@@ -155,8 +155,8 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun loadDetailFragment(result: Result) {
-        toolbar.parentLayout.toolbaTitle.text=getString(R.string.title_detail)
-        toolbar.parentLayout.mapIcon.visibility= GONE
+        toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_detail)
+        toolbar.parentLayout.mapIcon.visibility = GONE
         FragmentNavigator.addFragment(
             this, supportFragmentManager,
             getContainer(), DetailFragment.newInstance(result), null, true,
@@ -165,18 +165,25 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun loadMapFragment() {
-        var result = ArrayList<Result>()
-        val currentFragment = supportFragmentManager.findFragmentById(getContainer())
-        if (currentFragment is HomeFragment) {
-            val mutableList: MutableLiveData<ArrayList<Result>>? =
-                currentFragment.getFragmentData()?.getRestaurantLiveData()
-            if (mutableList?.value != null &&  mutableList.value is ArrayList<Result>) {
-                result = mutableList.value as ArrayList<Result>
+        if (preferenceHelper.getPrefFloat(AppConstants.KEY_LATITUDE) != 0f &&
+            preferenceHelper.getPrefFloat(AppConstants.KEY_LONGITUDE) != 0f
+        ) {
+            var result = ArrayList<Result>()
+            val currentFragment = supportFragmentManager.findFragmentById(getContainer())
+            if (currentFragment is HomeFragment) {
+                val mutableList: MutableLiveData<ArrayList<Result>>? =
+                    currentFragment.getFragmentData()?.getRestaurantLiveData()
+                if (mutableList?.value != null && mutableList.value is ArrayList<Result>) {
+                    result = mutableList.value as ArrayList<Result>
+                }
             }
+            val intent = Intent(this, MapsActivity::class.java)
+            intent.putParcelableArrayListExtra(
+                AppConstants.MAP_LOCATIONS,
+                result as ArrayList<out Parcelable>
+            )
+            startActivity(intent)
         }
-        val intent = Intent(this, MapsActivity::class.java)
-        intent.putParcelableArrayListExtra(AppConstants.MAP_LOCATIONS, result as ArrayList<out Parcelable>)
-        startActivity(intent)
     }
 
     private fun setIsToolbarRequired(value: Boolean) {

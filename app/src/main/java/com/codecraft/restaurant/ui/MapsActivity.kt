@@ -13,20 +13,19 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
+import android.graphics.Color
+import com.google.android.gms.maps.model.*
 
 
 open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @Inject
-    lateinit var preferenceHelper :PreferenceHelper
+    lateinit var preferenceHelper: PreferenceHelper
     private lateinit var mMap: GoogleMap
     private var mapFragment: SupportMapFragment? = null
     private var mapLocationList = ArrayList<Result>()
+    private lateinit var currentLocation: LatLng
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,30 +36,46 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment?.getMapAsync(this)
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
 
-        for (item in mapLocationList) {
-            val markerLocation = item.getGeometry()?.location
-            if (markerLocation != null) {
-                item.getName()?.let { createMarker(markerLocation, it, item.getVicinity()!!) }
+    override fun onMapReady(googleMap: GoogleMap) {
+        var line: Polyline?=null
+        mMap = googleMap
+        showAllNearByLocatinsOnMap()
+        showCurrentLocationOnMap()
+        mapFragment?.onResume()
+        mMap.setOnMarkerClickListener { marker ->
+            line?.remove()
+            for (item in mapLocationList) {
+                if (item.getName().equals(marker?.title)) {
+                    marker.showInfoWindow()
+                    Log.i("Mapclicked", "" + marker.title)
+                    val markerLocation = item.getGeometry()?.location
+                    line = mMap.addPolyline(
+                        PolylineOptions()
+                            .add(
+                                LatLng(currentLocation.latitude, currentLocation.longitude),
+                                markerLocation?.getLat()?.let {
+                                    LatLng(it, markerLocation.getLng()!!)
+                                }
+                            )
+                            .width(5f)
+                            .color(Color.RED)
+                    )
+                }
             }
+            true
         }
-        val currentLocation = LatLng(
+    }
+
+    private fun showCurrentLocationOnMap() {
+        currentLocation = LatLng(
             preferenceHelper.getPrefFloat(AppConstants.KEY_LATITUDE).toDouble(),
             preferenceHelper.getPrefFloat(AppConstants.KEY_LONGITUDE).toDouble()
         )
-        val marker = mMap.addMarker(MarkerOptions().position(currentLocation).title(getString(R.string.current_location))
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+        val marker = mMap.addMarker(
+            MarkerOptions().position(currentLocation).title(getString(R.string.current_location))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        )
         marker.showInfoWindow()
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation))
         mMap.animateCamera(
@@ -69,7 +84,15 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 AppConstants.MAP_ZOOM
             )
         )
-        mapFragment?.onResume()
+    }
+
+    private fun showAllNearByLocatinsOnMap() {
+        for (item in mapLocationList) {
+            val markerLocation = item.getGeometry()?.location
+            if (markerLocation != null) {
+                item.getName()?.let { createMarker(markerLocation, it, item.getVicinity()!!) }
+            }
+        }
     }
 
     private fun createMarker(
