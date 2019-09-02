@@ -5,11 +5,11 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Geometry() :Parcelable {
-
+data class Geometry(
     @SerializedName("location")
     @Expose
     var location: Location? = null
+) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         location = parcel.readParcelable(Location::class.java.classLoader)

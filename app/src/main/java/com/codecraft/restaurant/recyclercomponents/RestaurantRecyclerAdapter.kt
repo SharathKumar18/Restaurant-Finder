@@ -8,7 +8,6 @@ import com.codecraft.restaurant.data.response.Result
 class RestaurantRecyclerAdapter(private var results: List<Result>?) :
     RecyclerView.Adapter<RestaurantItemViewHolder>() {
 
-
     override fun onBindViewHolder(holder: RestaurantItemViewHolder, position: Int) {
         results?.get(position)?.let { holder.bindData(it) }
     }

@@ -40,22 +40,22 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         var line: Polyline?=null
         mMap = googleMap
-        showAllNearByLocatinsOnMap()
+        showAllNearByLocationsOnMap()
         showCurrentLocationOnMap()
         mapFragment?.onResume()
         mMap.setOnMarkerClickListener { marker ->
             line?.remove()
             for (item in mapLocationList) {
-                if (item.getName().equals(marker?.title)) {
+                if (item.name.equals(marker?.title)) {
                     marker.showInfoWindow()
                     Log.i("Mapclicked", "" + marker.title)
-                    val markerLocation = item.getGeometry()?.location
+                    val markerLocation = item.geometry?.location
                     line = mMap.addPolyline(
                         PolylineOptions()
                             .add(
                                 LatLng(currentLocation.latitude, currentLocation.longitude),
-                                markerLocation?.getLat()?.let {
-                                    LatLng(it, markerLocation.getLng()!!)
+                                markerLocation?.lat?.let {
+                                    LatLng(it, markerLocation.lng!!)
                                 }
                             )
                             .width(5f)
@@ -86,11 +86,11 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
-    private fun showAllNearByLocatinsOnMap() {
+    private fun showAllNearByLocationsOnMap() {
         for (item in mapLocationList) {
-            val markerLocation = item.getGeometry()?.location
+            val markerLocation = item.geometry?.location
             if (markerLocation != null) {
-                item.getName()?.let { createMarker(markerLocation, it, item.getVicinity()!!) }
+                item.name?.let { createMarker(markerLocation, it, item.vicinity!!) }
             }
         }
     }
@@ -100,10 +100,10 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         title: String,
         snippet: String
     ): Marker? {
-        return if (location.getLat() != null && location.getLng() != null) {
+        return if (location.lat != null && location.lng != null) {
             return mMap.addMarker(
                 MarkerOptions()
-                    .position(LatLng(location.getLat()!!, location.getLng()!!))
+                    .position(LatLng(location.lat!!, location.lng!!))
                     .anchor(0.5f, 0.5f)
                     .title(title)
                     .snippet(snippet)

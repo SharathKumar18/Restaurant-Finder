@@ -5,33 +5,18 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Location() :Parcelable {
+data class Location(
     @SerializedName("lat")
     @Expose
-    private var lat: Double? = null
+    var lat: Double? = null,
     @SerializedName("lng")
     @Expose
-    private var lng: Double? = null
+    var lng: Double? = null
+) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         lat = parcel.readValue(Double::class.java.classLoader) as? Double
         lng = parcel.readValue(Double::class.java.classLoader) as? Double
-    }
-
-    fun getLat(): Double? {
-        return lat
-    }
-
-    fun setLat(lat: Double?) {
-        this.lat = lat
-    }
-
-    fun getLng(): Double? {
-        return lng
-    }
-
-    fun setLng(lng: Double?) {
-        this.lng = lng
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

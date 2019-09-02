@@ -1,6 +1,5 @@
 package com.codecraft.restaurant.rxbus
 
-import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
 interface MainBus {

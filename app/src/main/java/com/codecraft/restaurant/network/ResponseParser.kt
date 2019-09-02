@@ -14,9 +14,7 @@ object ResponseParser {
 
     fun parseResponseFromServer(input: InputStream): String{
         val response = StringBuffer()
-
         val isw = InputStreamReader(input)
-
         var data = isw.read()
         while (data != -1) {
             val current = data.toChar()
@@ -29,5 +27,4 @@ object ResponseParser {
     fun parseImageFromServer(input: InputStream): Bitmap{
         return BitmapFactory.decodeStream(input)
     }
-
 }

@@ -1,8 +1,6 @@
 package com.codecraft.restaurant.ui.detail
 
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.lifecycle.Observer
@@ -10,7 +8,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.codecraft.restaurant.R
 import com.codecraft.restaurant.data.model.UiHelper
 import com.codecraft.restaurant.data.response.Result
-import com.codecraft.restaurant.network.ImageFetchAsyntask
+import com.codecraft.restaurant.network.ImageFetchAsyncTask
 import com.codecraft.restaurant.rxbus.RxEvent
 import com.codecraft.restaurant.ui.base.BaseFragment
 import com.codecraft.restaurant.utils.AppConstants
@@ -21,7 +19,7 @@ import kotlin.math.min
 class DetailFragment : BaseFragment() {
 
     private var result: Result? = null
-    private var mScaleGestureDetector: ScaleGestureDetector? = null
+    private var scaleGestureDetector: ScaleGestureDetector? = null
     private var scaleFactor = 1.0f
 
     override fun getFragmentLayoutId(): Int {
@@ -34,12 +32,11 @@ class DetailFragment : BaseFragment() {
     }
 
     override fun initViews(view: View) {
-        detailTitle.text=result?.getName()
+        detailTitle.text=result?.name
         detailThumb.post {
             result?.let {
-                Log.i("detailData", "" + getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height))
-                getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height)?.let {
-                    ImageFetchAsyntask.fetchImageFromServer(
+                getViewModel()?.getApiUrl(it,detailThumb.width,detailThumb.height)?.let { it ->
+                    ImageFetchAsyncTask.fetchImageFromServer(
                         it, detailThumb
                     )
                 }
@@ -48,10 +45,10 @@ class DetailFragment : BaseFragment() {
 
         getViewModel()?.getUiLiveData()?.observe(this,
             Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
-        mScaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
+        scaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
 
-        view.setOnTouchListener { v, event ->
-            mScaleGestureDetector?.onTouchEvent(event)
+        view.setOnTouchListener { rootView, event ->
+            scaleGestureDetector?.onTouchEvent(event)
             true
         }
     }

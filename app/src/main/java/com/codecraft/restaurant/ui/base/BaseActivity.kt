@@ -27,28 +27,29 @@ abstract class BaseActivity : AppCompatActivity() {
     @Inject
     lateinit var rxBus: RxHelper
     @Inject
-    lateinit var preferenceHelper : PreferenceHelper
+    lateinit var preferenceHelper: PreferenceHelper
     private var showNetworkChanged: Boolean = false
     private var receiver: BroadcastReceiver? = null
     private var disposable: DisposableObserver<Any>? = null
 
-    private val backStackListener: FragmentManager.OnBackStackChangedListener
-        get() = FragmentManager.OnBackStackChangedListener {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(getLayoutId())
+        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
+        addBackStackChangeListener()
+        addNetworkChangeListener()
+        registerForBusCallback()
+        initViews()
+    }
+
+    private fun addBackStackChangeListener() {
+        supportFragmentManager.addOnBackStackChangedListener {
             val manager = supportFragmentManager
             if (manager != null) {
                 val fragment = manager.findFragmentById(getContainer()) as BaseFragment?
                 fragment?.resumeScreen()
             }
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(getLayoutId())
-        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
-        supportFragmentManager.addOnBackStackChangedListener(backStackListener)
-        addNetworkChangeListener()
-        registerForBusCallback()
-        initViews()
     }
 
     private fun addNetworkChangeListener() {
@@ -71,15 +72,15 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun registerForBusCallback() {
-            disposable = object : DisposableObserver<Any>() {
-                override fun onNext(event: Any) {
-                    handleBusCallback(event)
-                }
-
-                override fun onError(e: Throwable) {}
-                override fun onComplete() {}
+        disposable = object : DisposableObserver<Any>() {
+            override fun onNext(event: Any) {
+                handleBusCallback(event)
             }
-            rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+
+            override fun onError(e: Throwable) {}
+            override fun onComplete() {}
+        }
+        rxBus.toObservable()?.share()?.subscribeWith(disposable)
     }
 
     private fun unSubScribe() {

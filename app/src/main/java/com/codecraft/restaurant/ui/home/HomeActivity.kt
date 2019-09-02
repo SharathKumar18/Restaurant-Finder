@@ -154,7 +154,7 @@ class HomeActivity : BaseActivity() {
         )
     }
 
-    private fun loadDetailFragment(result: Result) {
+    fun loadDetailFragment(result: Result) {
         toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_detail)
         toolbar.parentLayout.mapIcon.visibility = GONE
         FragmentNavigator.addFragment(

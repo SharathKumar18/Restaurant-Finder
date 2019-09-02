@@ -57,7 +57,6 @@ object ResponseFetchAsyncTask {
     }
 
     fun fetchResultFromServer(url: String, listener: OnResultListener) {
-        networkFetchAsyncTask?.cancel(true)
         networkFetchAsyncTask = ResponseFetchAsyncTask(listener)
         networkFetchAsyncTask?.execute(url)
     }

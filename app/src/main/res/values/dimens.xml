@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="splash_title_text">24sp</dimen>
+    <dimen name="splash_title_text">36sp</dimen>
     <dimen name="margin_left_toolbar_title">40dp</dimen>
     <dimen name="item_height">100dp</dimen>
     <dimen name="margin_3dp">3dp</dimen>

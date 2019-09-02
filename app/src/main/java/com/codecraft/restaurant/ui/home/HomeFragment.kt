@@ -53,12 +53,12 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
             Observer<UiHelper> { t -> t?.let { handleUICallbacks(uiHelper = it) } })
 
         getViewModel()?.getErrorLiveData()?.observe(this, Observer {
-            if(it){
-                errorText.visibility=VISIBLE
-                errorText.text=getString(R.string.error_text)
-            }else{
-                errorText.visibility= GONE
-
+            if (it) {
+                errorText.visibility = VISIBLE
+                errorText.text = getString(R.string.error_text)
+            } else {
+                errorText.visibility = GONE
+                errorText.text = ""
             }
         })
     }
@@ -118,7 +118,7 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     private fun handleUICallbacks(uiHelper: UiHelper) {
         when (uiHelper.status) {
             AppConstants.UIConstants.SHOW_PROGRESS ->
-                progressCircular.visibility = View.VISIBLE
+                progressCircular.visibility = VISIBLE
             AppConstants.UIConstants.HIDE_PROGRESS -> progressCircular.visibility = View.GONE
             AppConstants.UIConstants.DATA_LOADED -> loading = false
         }

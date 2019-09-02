@@ -74,18 +74,14 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                 Log.i("restaurantData", "Url:" + getApiUrl() + "\nResponse" + restaurant)
                 if(restaurant is String) {
                     val data = Gson().fromJson<Any>(restaurant, Restaurant::class.java)
-                    if (data is Restaurant && !data.getStatus().equals(RESULT_STATUS)) {
+                    if (data is Restaurant && !data.status.equals(RESULT_STATUS)) {
                         errorValue.value=false
-                        nextPageToken = data.getNextPageToken()
-                        if (liveData.value != null && liveData.value is ArrayList<Result>) {
-                            val previousResult = liveData.value as ArrayList<Result>
-                            data.getResults()?.let { previousResult.addAll(it) }
-                            liveData.value = previousResult
-                        } else {
-                            liveData.value = data.getResults() as ArrayList<Result>?
-                        }
+                        nextPageToken = data.nextPageToken
+                        createMutableListData(data)
                     }else{
-                        errorValue.value=true
+                        if(liveData.value == null){
+                            errorValue.value = true
+                        }
                     }
                 }
                 hideProgress()
@@ -96,6 +92,16 @@ class HomeViewModel(application: Application) : BaseViewModel(application = appl
                 hideProgress()
             }
         })
+    }
+
+    private fun createMutableListData(data: Restaurant) {
+        if (liveData.value != null && liveData.value is ArrayList<Result>) {
+            val previousResult = liveData.value as ArrayList<Result>
+            data.results?.let { previousResult.addAll(it) }
+            liveData.value = previousResult
+        } else {
+            liveData.value = data.results as ArrayList<Result>?
+        }
     }
 
     override fun handleBusCallback(event: Any) {

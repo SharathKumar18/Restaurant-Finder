@@ -35,14 +35,12 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun showProgress() {
-        val helper =
-            UiHelper(AppConstants.UIConstants.SHOW_PROGRESS)
+        val helper = UiHelper(AppConstants.UIConstants.SHOW_PROGRESS)
         uiLiveData.value=helper
     }
 
     fun hideProgress() {
-        val helper =
-            UiHelper(AppConstants.UIConstants.HIDE_PROGRESS)
+        val helper = UiHelper(AppConstants.UIConstants.HIDE_PROGRESS)
         uiLiveData.value=helper
     }
 
@@ -52,16 +50,13 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     private fun registerForBusCallback() {
-        if (rxBus != null) {
-            disposable = object : DisposableObserver<Any>() {
-                override fun onNext(event: Any) {
-                    handleBusCallback(event)
-                }
-                override fun onError(e: Throwable) {}
-                override fun onComplete() {}
+        disposable = object : DisposableObserver<Any>() {
+            override fun onNext(event: Any) {
+                handleBusCallback(event)
             }
-            rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+            override fun onError(e: Throwable) {}
+            override fun onComplete() {}
         }
+        rxBus.toObservable()?.share()?.subscribeWith(disposable)
     }
-
 }

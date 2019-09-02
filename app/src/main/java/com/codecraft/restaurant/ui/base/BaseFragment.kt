@@ -39,16 +39,14 @@ abstract class BaseFragment : Fragment() {
     }
 
     private fun registerForBusCallback() {
-        if (rxBus != null) {
-            disposable = object : DisposableObserver<Any>() {
-                override fun onNext(event: Any) {
-                    handleBusCallback(event)
-                }
-                override fun onError(e: Throwable) {}
-                override fun onComplete() {}
+        disposable = object : DisposableObserver<Any>() {
+            override fun onNext(event: Any) {
+                handleBusCallback(event)
             }
-            rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+            override fun onError(e: Throwable) {}
+            override fun onComplete() {}
         }
+        rxBus?.toObservable()?.share()?.subscribeWith(disposable)
     }
 
     private fun unSubScribe() {
@@ -61,11 +59,6 @@ abstract class BaseFragment : Fragment() {
     override fun onDestroyView() {
         unSubScribe()
         super.onDestroyView()
-    }
-
-    fun showSnackBarMessage(message: String) {
-        val snackBar = view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG) }
-        snackBar?.show()
     }
 }
 
