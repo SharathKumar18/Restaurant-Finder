@@ -10,11 +10,13 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.codecraft.restaurant.R
-import com.codecraft.restaurant.rxbus.MainBus
+import com.codecraft.restaurant.application.RestaurantApp
 import com.codecraft.restaurant.rxbus.RxHelper
 import com.codecraft.restaurant.utils.AppUtils
+import com.codecraft.restaurant.utils.PreferenceHelper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.observers.DisposableObserver
+import javax.inject.Inject
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -22,29 +24,32 @@ abstract class BaseActivity : AppCompatActivity() {
     protected abstract fun getContainer(): Int
     protected abstract fun initViews()
     protected abstract fun handleBusCallback(event: Any)
-
-    var rxBus: MainBus? = null
+    @Inject
+    lateinit var rxBus: RxHelper
+    @Inject
+    lateinit var preferenceHelper: PreferenceHelper
     private var showNetworkChanged: Boolean = false
     private var receiver: BroadcastReceiver? = null
     private var disposable: DisposableObserver<Any>? = null
 
-    private val backStackListener: FragmentManager.OnBackStackChangedListener
-        get() = FragmentManager.OnBackStackChangedListener {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(getLayoutId())
+        RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
+        addBackStackChangeListener()
+        addNetworkChangeListener()
+        registerForBusCallback()
+        initViews()
+    }
+
+    private fun addBackStackChangeListener() {
+        supportFragmentManager.addOnBackStackChangedListener {
             val manager = supportFragmentManager
             if (manager != null) {
                 val fragment = manager.findFragmentById(getContainer()) as BaseFragment?
                 fragment?.resumeScreen()
             }
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(getLayoutId())
-        rxBus = RxHelper.getInstance()
-        supportFragmentManager.addOnBackStackChangedListener(backStackListener)
-        addNetworkChangeListener()
-        registerForBusCallback()
-        initViews()
     }
 
     private fun addNetworkChangeListener() {
@@ -67,17 +72,15 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun registerForBusCallback() {
-        if (rxBus != null) {
-            disposable = object : DisposableObserver<Any>() {
-                override fun onNext(event: Any) {
-                    handleBusCallback(event)
-                }
-
-                override fun onError(e: Throwable) {}
-                override fun onComplete() {}
+        disposable = object : DisposableObserver<Any>() {
+            override fun onNext(event: Any) {
+                handleBusCallback(event)
             }
-            rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+
+            override fun onError(e: Throwable) {}
+            override fun onComplete() {}
         }
+        rxBus.toObservable()?.share()?.subscribeWith(disposable)
     }
 
     private fun unSubScribe() {

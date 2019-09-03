@@ -16,7 +16,7 @@ class SplashFragment : BaseFragment() {
 
     private fun sendNextScreenEvent() {
         val event = RxEvent(RxEvent.EVENT_LOAD_HOME, null)
-        rxBus!!.send(event)
+        rxBus.send(event)
     }
 
     override fun handleBusCallback(event: Any) {
