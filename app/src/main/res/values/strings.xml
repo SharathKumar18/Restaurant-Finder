@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RestaurantFinder</string>
+    <string name="disconnected">Network Disconnected</string>
+    <string name="connected">Network connected</string>
+    <string name="ok">OK</string>
+    <string name="title_location_permission">Location</string>
+    <string name="text_location_permission">This is required to fetch nearby restaurants for you</string>
+    <string name="text_distance_meter">0m</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="error_text">Something went wrong.Please try again.</string>
+    <string name="title_home">Home</string>
+    <string name="title_detail">Restaurant Detail</string>
+    <string name="current_location">Current Location</string>
+</resources>
