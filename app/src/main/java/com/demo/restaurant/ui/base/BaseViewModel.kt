@@ -1,5 +1,6 @@
 package com.demo.restaurant.ui.base
 
+import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -49,6 +50,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         uiLiveData.value=helper
     }
 
+    @SuppressLint("CheckResult")
     private fun registerForBusCallback() {
         disposable = object : DisposableObserver<Any>() {
             override fun onNext(event: Any) {

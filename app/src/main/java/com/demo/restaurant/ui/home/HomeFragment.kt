@@ -127,7 +127,7 @@ class HomeFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         when (uiHelper.status) {
             AppConstants.UIConstants.SHOW_PROGRESS ->
                 progressCircular.visibility = VISIBLE
-            AppConstants.UIConstants.HIDE_PROGRESS -> progressCircular.visibility = View.GONE
+            AppConstants.UIConstants.HIDE_PROGRESS -> progressCircular.visibility = GONE
             AppConstants.UIConstants.DATA_LOADED -> loading = false
         }
     }

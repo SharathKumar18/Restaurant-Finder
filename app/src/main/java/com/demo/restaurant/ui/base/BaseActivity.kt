@@ -1,5 +1,6 @@
 package com.demo.restaurant.ui.base
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -70,6 +71,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun registerForBusCallback() {
         disposable = object : DisposableObserver<Any>() {
             override fun onNext(event: Any) {

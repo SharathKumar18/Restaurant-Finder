@@ -23,7 +23,6 @@ object ImageFetchAsyncTask {
 
         override fun doInBackground(vararg strings: String): Bitmap? {
             val request = strings[0]
-            Logger.i("RestaurantData", "Url:$request")
             try {
                 val conn: HttpURLConnection = createImageConnection(request)
                 val responseCode: Int = conn.responseCode

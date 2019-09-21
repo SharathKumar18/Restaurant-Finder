@@ -17,6 +17,4 @@ data class PhotoReference(
     @SerializedName("width")
     @Expose
     var width: Int? = null
-) {
-
-}
+)

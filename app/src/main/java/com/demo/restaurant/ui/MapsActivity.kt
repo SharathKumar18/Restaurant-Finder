@@ -1,23 +1,23 @@
 package com.demo.restaurant.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.demo.restaurant.R
 import com.demo.restaurant.application.RestaurantApp
 import com.demo.restaurant.data.response.Location
 import com.demo.restaurant.data.response.Result
+import com.demo.restaurant.utils.ApiConstants.DESTINATION_ADDRESS
+import com.demo.restaurant.utils.ApiConstants.MAPS_BASE_URL
 import com.demo.restaurant.utils.AppConstants
 import com.demo.restaurant.utils.PreferenceHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import javax.inject.Inject
-import android.net.Uri
-import com.demo.restaurant.utils.ApiConstants.DESTINATION_ADDRESS
-import com.demo.restaurant.utils.ApiConstants.MAPS_BASE_URL
 import com.google.android.gms.maps.model.*
+import javax.inject.Inject
 
 
 open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -40,7 +40,7 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     override fun onMapReady(googleMap: GoogleMap) {
-        var line: Polyline? = null
+        val line: Polyline? = null
         mMap = googleMap
         showAllNearByLocationsOnMap()
         showCurrentLocationOnMap()

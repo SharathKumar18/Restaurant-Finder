@@ -36,16 +36,6 @@ class RestaurantApp : Application(), LifecycleObserver {
         instance = null
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onAppBackgrounded() {
-
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onAppForegrounded() {
-
-    }
-
     companion object {
         private var instance: RestaurantApp? = null
         fun getContext(): RestaurantApp? {

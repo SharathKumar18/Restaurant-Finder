@@ -16,5 +16,4 @@ data class Restaurant(
     @SerializedName("status")
     @Expose
     var status: String? = null
-) : BaseResponse() {
-}
+) : BaseResponse()

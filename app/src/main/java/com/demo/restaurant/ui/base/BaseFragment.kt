@@ -1,5 +1,6 @@
 package com.demo.restaurant.ui.base
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,7 @@ abstract class BaseFragment : Fragment() {
         initViews(view)
     }
 
+    @SuppressLint("CheckResult")
     private fun registerForBusCallback() {
         disposable = object : DisposableObserver<Any>() {
             override fun onNext(event: Any) {
@@ -44,7 +46,7 @@ abstract class BaseFragment : Fragment() {
             override fun onError(e: Throwable) {}
             override fun onComplete() {}
         }
-        rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+        rxBus.toObservable()?.share()?.subscribeWith(disposable)
     }
 
     private fun unSubScribe() {

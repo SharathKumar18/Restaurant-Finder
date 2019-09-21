@@ -1,7 +1,9 @@
 package com.demo.restaurant.ui.home
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -25,12 +27,17 @@ import com.demo.restaurant.ui.splash.SplashFragment
 import com.demo.restaurant.utils.AppConstants
 import com.demo.restaurant.utils.FragmentNavigator
 import com.demo.restaurant.utils.LocationHelperUtil
-import com.demo.restaurant.utils.Logger
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import kotlinx.android.synthetic.main.layout_toolbar.*
 import kotlinx.android.synthetic.main.layout_toolbar.view.*
 
 
-class HomeActivity : BaseActivity() {
+class HomeActivity : BaseActivity(), LocationListener {
 
     override fun getLayoutId(): Int {
         return R.layout.activity_home
@@ -42,16 +49,20 @@ class HomeActivity : BaseActivity() {
 
     override fun initViews() {
         loadSplashFragment()
-        val isPermissionGranted = LocationHelperUtil.checkLocationPermission(this)
-        if (isPermissionGranted) {
-            findUserLocation()
-        }
         mapIcon.setOnClickListener {
             loadMapFragment()
         }
     }
 
-    private fun findUserLocation() {
+    override fun onStart() {
+        super.onStart()
+        val isPermissionGranted = LocationHelperUtil.checkLocationPermission(this)
+        if (isPermissionGranted) {
+            fetchUserLocation()
+        }
+    }
+
+    private fun fetchUserLocation() {
         val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -64,12 +75,12 @@ class HomeActivity : BaseActivity() {
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             LOCATION_REFRESH_TIME,
-            LOCATION_REFRESH_DISTANCE.toFloat(), locationListener
+            LOCATION_REFRESH_DISTANCE.toFloat(), this
         )
         locationManager.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER,
             LOCATION_REFRESH_TIME,
-            LOCATION_REFRESH_DISTANCE.toFloat(), locationListener
+            LOCATION_REFRESH_DISTANCE.toFloat(), this
         )
     }
 
@@ -81,39 +92,70 @@ class HomeActivity : BaseActivity() {
             AppConstants.GET_LOCATION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (LocationHelperUtil.checkSelfPermission(this)) {
-                        findUserLocation()
+                        requestLocation()
                     }
                 }
             }
         }
     }
 
-    override fun onDestroy() {
-        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        locationManager.removeUpdates(locationListener)
-        super.onDestroy()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == LOCATION_SETTINGS_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                fetchUserLocation()
+            }
+        }
     }
 
-    private val locationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            Logger.i("RestaurantData", "" + location.latitude + location.longitude)
-            preferenceHelper.editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
-            preferenceHelper.editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
-            val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
-            rxBus.send(event)
-        }
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+    }
 
-        override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {
+    override fun onProviderEnabled(provider: String?) {
+    }
 
-        }
+    override fun onProviderDisabled(provider: String?) {
+    }
 
-        override fun onProviderEnabled(s: String) {
+    override fun onLocationChanged(location: Location) {
+        preferenceHelper.editPrefLong(AppConstants.KEY_LATITUDE, location.latitude.toFloat())
+        preferenceHelper.editPrefLong(AppConstants.KEY_LONGITUDE, location.longitude.toFloat())
+        val event = RxEvent(RxEvent.EVENT_LOCATION_UPDATED, location)
+        rxBus.send(event)
+    }
 
-        }
+    private fun requestLocation() {
+        val mLocationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(10 * 1000)
+            .setFastestInterval(1000)
 
-        override fun onProviderDisabled(s: String) {
+        val settingsBuilder = LocationSettingsRequest.Builder()
+            .addLocationRequest(mLocationRequest)
+        settingsBuilder.setAlwaysShow(true)
 
-        }
+        val settingsClient = LocationServices.getSettingsClient(this)
+        val result = settingsClient.checkLocationSettings(settingsBuilder.build())
+        result.addOnSuccessListener { fetchUserLocation() }
+            .addOnFailureListener { e ->
+                val statusCode = (e as ApiException).statusCode
+                if (statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
+                    try {
+                        val exception = e as ResolvableApiException
+                        exception.startResolutionForResult(
+                            this@HomeActivity,
+                            LOCATION_SETTINGS_REQUEST
+                        )
+                    } catch (sie: IntentSender.SendIntentException) {
+                    }
+                }
+            }
+    }
+
+    override fun onStop() {
+        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        locationManager.removeUpdates(this)
+        super.onStop()
     }
 
     override fun handleBusCallback(event: Any) {
@@ -151,7 +193,7 @@ class HomeActivity : BaseActivity() {
         )
     }
 
-    private fun loadDetailFragment(result: Result) {
+    fun loadDetailFragment(result: Result) {
         toolbar.parentLayout.toolbaTitle.text = getString(R.string.title_detail)
         toolbar.parentLayout.mapIcon.visibility = GONE
         FragmentNavigator.addFragment(
@@ -194,5 +236,6 @@ class HomeActivity : BaseActivity() {
     companion object {
         private const val LOCATION_REFRESH_TIME: Long = 1000
         private const val LOCATION_REFRESH_DISTANCE: Long = 1000
+        private const val LOCATION_SETTINGS_REQUEST = 1
     }
 }

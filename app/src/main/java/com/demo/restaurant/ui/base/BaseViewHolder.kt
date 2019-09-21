@@ -1,5 +1,6 @@
 package com.demo.restaurant.ui.base
 
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.demo.restaurant.application.RestaurantApp
@@ -23,6 +24,7 @@ abstract class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         RestaurantApp.getContext()?.getApplicationComponent()?.inject(this)
     }
 
+    @SuppressLint("CheckResult")
     private fun registerForBusCallback() {
         disposable = object : DisposableObserver<Any>() {
             override fun onNext(event: Any) {
@@ -33,7 +35,7 @@ abstract class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
             override fun onComplete() {}
         }
-        rxBus?.toObservable()?.share()?.subscribeWith(disposable)
+        rxBus.toObservable()?.share()?.subscribeWith(disposable)
     }
 
 }

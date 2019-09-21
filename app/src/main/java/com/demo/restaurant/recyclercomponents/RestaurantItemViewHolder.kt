@@ -15,7 +15,6 @@ class RestaurantItemViewHolder(var view: View) : BaseViewHolder(view) {
         val thumbnail = view.findViewById<ImageView>(R.id.restaurantThumb)
         val name = view.findViewById<TextView>(R.id.restaurantName)
         val location = view.findViewById<TextView>(R.id.restaurantLocation)
-        var distance = view.findViewById<TextView>(R.id.restaurantDistance)
 
         result.icon?.let { ImageFetchAsyncTask.fetchImageFromServer(it, thumbnail) }
         name.text = result.name
