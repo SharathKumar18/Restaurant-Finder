@@ -25,13 +25,6 @@ android {
             keyPassword 'RestaurantFinder'
             storeFile file(System.getenv("KEYSTORE") ?: "../KeyStore/RestaurantFinder.jks")
         }
-
-        WeatherDemo {
-            storeFile file('KeyStore\\WeatherDemo.jks')
-            storePassword 'WeatherDemo'
-            keyAlias = 'WeatherDemo'
-            keyPassword 'WeatherDemo'
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
